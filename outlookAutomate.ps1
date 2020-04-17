@@ -1,6 +1,8 @@
 param(
     [Parameter(Mandatory=$false)][String]$giftcardpattern="{{gift_card}}",
+    [Parameter(Mandatory=$false)][String]$followuppattern="attendee_name",
     [Parameter(Mandatory=$false)][String]$pinassign="N",
+    [Parameter(Mandatory=$false)][String]$followup="N",
     [Parameter(Mandatory=$false)][String]$subjectPre="",
     [Parameter(Mandatory=$false)][String]$subjectPost=""
 )
@@ -27,7 +29,7 @@ $inviteeList = $inviteeListRaw | Sort-Object -Property contactCompany
 
 $tTempCompany = ""
 foreach ($invitee in $inviteeList) {
-    if (($tTempCompany -ne $invitee.contactCompany) -or ($pinassign -eq "Y")) {
+    if (($tTempCompany -ne $invitee.contactCompany) -or ($pinassign -eq "Y") -or ($followup -eq "Y")) {
         $tTempCompany = $invitee.contactCompany
          $mailMessage = $outl.createItemFromTemplate($fileTemplate)
         # $mailMessage = $outl.createItem(0)
@@ -35,13 +37,21 @@ foreach ($invitee in $inviteeList) {
         $mailMessage.Recipients.Add($invitee.contactEmail)
         Write-Host "Would Add Recipient: " $invitee.contactEmail
 #        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
-        $mailMessage.subject = $subjectPre + $invitee.contactName + $subjectPost
+#        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
+        $mailMessage.subject = $mailMessage.subject.Replace($followuppattern, $invitee.contactName)
         Write-Host "| MAIL: SUBJECT: " $invitee.contactCompany
         #$mailMessage.body = " | - - - Test Message - - - | "
         if ($pinassign -eq "Y") {
             $mailMessage.Body = $mailMessage.Body.Replace($giftcardpattern, $invitee.contactGiftCard)
             write-host $giftcardpattern ":" $invitee.contactGiftCard
         }
+
+        if ($followup -eq "Y") {
+#            $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $invitee.contactName)
+            $mailMessage.HTMLBody = $mailMessage.HTMLBody.Replace($followuppattern, $invitee.contactName)
+            write-host $followuppattern ":" $invitee.contactName
+        }
+
         Write-Host "| MAIL: BODY"
         $mailMessage.save()
         Write-Host "| MAIL: SAVE TO DRAFTS"
