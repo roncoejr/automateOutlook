@@ -38,7 +38,7 @@ foreach ($invitee in $inviteeList) {
         Write-Host "Would Add Recipient: " $invitee.contactEmail
 #        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
 #        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
-        $mailMessage.subject = $mailMessage.subject.Replace($followuppattern, $invitee.contactName)
+        $mailMessage.subject = $subjectPre + $mailMessage.subject.Replace($followuppattern, $invitee.contactName) + $subjectPost
         Write-Host "| MAIL: SUBJECT: " $invitee.contactCompany
         #$mailMessage.body = " | - - - Test Message - - - | "
         if ($pinassign -eq "Y") {
