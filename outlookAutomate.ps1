@@ -35,29 +35,35 @@ foreach ($invitee in $inviteeList) {
         # $mailMessage = $outl.createItem(0)
         Write-Host "| MAIL MESSAGE CREATION | "
         $mailMessage.Recipients.Add($invitee.contactEmail)
-        Write-Host "Would Add Recipient: " $invitee.contactEmail
+        Write-Host "Would Add Recipient: " $invitee.contactEmail ($invitee.contactName)
 #        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
 #        $mailMessage.subject = $subjectPre + $invitee.contactCompany + $subjectPost
-        $mailMessage.subject = $subjectPre + $mailMessage.subject.Replace($followuppattern, $invitee.contactName) + $subjectPost
+#        $mailMessage.subject = $subjectPre + $mailMessage.subject.Replace($followuppattern, $invitee.contactName) + $subjectPost
         Write-Host "| MAIL: SUBJECT: " $invitee.contactCompany
         #$mailMessage.body = " | - - - Test Message - - - | "
+        $contactFirst = $invitee.contactName.split(" ")
+        # $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
+        #$mailMessage.subject.Replace($followuppattern, $invitee.contactName)
         if ($pinassign -eq "Y") {
             $mailMessage.Body = $mailMessage.Body.Replace($giftcardpattern, $invitee.contactGiftCard)
             write-host $giftcardpattern ":" $invitee.contactGiftCard
         }
 
         if ($followup -eq "Y") {
-#            $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $invitee.contactName)
-            $mailMessage.HTMLBody = $mailMessage.HTMLBody.Replace($followuppattern, $invitee.contactName)
+            $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
+#            $mailMessage.HTMLBody = $mailMessage.HTMLBody.Replace($followuppattern, $contactFirst[0])
             write-host $followuppattern ":" $invitee.contactName
         }
 
         Write-Host "| MAIL: BODY"
         $mailMessage.save()
         Write-Host "| MAIL: SAVE TO DRAFTS"
+        
     }
     else {
         $tTempCompany = $invitee.contactCompany
+        $mailMessage.subject.Replace($followuppattern, $invitee.contactName)
+
         $mailMessage.Recipients.Add($invitee.contactEmail)
         Write-Host "Would Add Recipient: " $invitee.contactEmail
     }
