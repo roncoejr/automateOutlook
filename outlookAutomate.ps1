@@ -25,9 +25,11 @@ Function Get-FileName($initialDirectory, $fileFilterType)
 
 $fileInvitees = Get-FileName -initialDirectory ".\" -fileFilterType "All CSV Files (*.csv)|*.csv"
 $fileTemplate = Get-FileName -initialDirectory ".\" -fileFilterType "All E-mail Templates (*.oft)|*.oft"
+$fileHTML = Get-FileName -initialDirectory ".\" -fileFilterType "All HTM Files (*.htm)|*.htm|All HTML Files (*.html)|*.html"
 
 $inviteeListRaw = Import-csv $fileInvitees
 $inviteeList = $inviteeListRaw | Sort-Object -Property contactCompany
+$htmlMail = [IO.File]::ReadAllText($fileHTML)
 
 $tTempCompany = ""
 foreach ($invitee in $inviteeList) {
@@ -45,7 +47,10 @@ foreach ($invitee in $inviteeList) {
         #$mailMessage.body = " | - - - Test Message - - - | "
         $contactFirst = $invitee.contactName.split(" ")
         # $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
-        $mailMessage.subject = $mailMessage.subject.Replace($companyreplacepattern, $contactFirst)
+        $tmpSubject = $mailMessage.subject
+        $tmpSubject = $tmpSubject.Replace($companyreplaceuppattern, $contactFirst)
+        $mailMessage.subject = $tmpSubject
+        $mailMessage.HTMLBody = $htmlMail.Replace($followuppattern, $contactFirst)
         if ($pinassign -eq "Y") {
             $mailMessage.Body = $mailMessage.Body.Replace($giftcardpattern, $invitee.contactGiftCard)
             write-host $giftcardpattern ":" $invitee.contactGiftCard
