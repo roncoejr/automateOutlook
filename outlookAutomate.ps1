@@ -1,10 +1,12 @@
 param(
     [Parameter(Mandatory=$false)][String]$giftcardpattern="{{gift_card}}",
     [Parameter(Mandatory=$false)][String]$followuppattern="attendee_name",
+    [Parameter(Mandatory=$false)][String]$companyreplaceuppattern="company_name",
     [Parameter(Mandatory=$false)][String]$pinassign="N",
     [Parameter(Mandatory=$false)][String]$followup="N",
     [Parameter(Mandatory=$false)][String]$subjectPre="",
-    [Parameter(Mandatory=$false)][String]$subjectPost=""
+    [Parameter(Mandatory=$false)][String]$subjectPost="",
+    [Parameter(Mandatory=$false)][String]$sendMail="N"
 )
 
 $olFolderDrafts = 16
@@ -43,20 +45,26 @@ foreach ($invitee in $inviteeList) {
         #$mailMessage.body = " | - - - Test Message - - - | "
         $contactFirst = $invitee.contactName.split(" ")
         # $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
-        #$mailMessage.subject.Replace($followuppattern, $invitee.contactName)
+        $mailMessage.subject = $mailMessage.subject.Replace($companyreplacepattern, $contactFirst)
         if ($pinassign -eq "Y") {
             $mailMessage.Body = $mailMessage.Body.Replace($giftcardpattern, $invitee.contactGiftCard)
             write-host $giftcardpattern ":" $invitee.contactGiftCard
         }
 
         if ($followup -eq "Y") {
-            $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
+            $mailMessage.HTMLBody = $mailMessage.HTMLBody.Replace($followuppattern, $contactFirst[0])
 #            $mailMessage.HTMLBody = $mailMessage.HTMLBody.Replace($followuppattern, $contactFirst[0])
             write-host $followuppattern ":" $invitee.contactName
         }
 
         Write-Host "| MAIL: BODY"
-        $mailMessage.save()
+        if($sendMail -eq "Y") {
+            $mailMessage.send()
+        }
+        else {
+            $mailMessage.save()
+        }
+        #$mailMessage.send()
         Write-Host "| MAIL: SAVE TO DRAFTS"
         
     }
