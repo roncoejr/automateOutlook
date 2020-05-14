@@ -45,12 +45,13 @@ foreach ($invitee in $inviteeList) {
 #        $mailMessage.subject = $subjectPre + $mailMessage.subject.Replace($followuppattern, $invitee.contactName) + $subjectPost
         Write-Host "| MAIL: SUBJECT: " $invitee.contactCompany
         #$mailMessage.body = " | - - - Test Message - - - | "
-        $contactFirst = $invitee.contactName.split(" ")
+        $contactFirst = $invitee.contactName -split " +"
         # $mailMessage.Body = $mailMessage.Body.Replace($followuppattern, $contactFirst[0])
         $tmpSubject = $mailMessage.subject
-        $tmpSubject = $tmpSubject.Replace($companyreplaceuppattern, $contactFirst)
+        # $tmpSubject = $tmpSubject.Replace($companyreplaceuppattern, $contactFirst[0])
+        $tmpSubject = $tmpSubject.Replace($followuppattern, $contactFirst[0])
         $mailMessage.subject = $tmpSubject
-        $mailMessage.HTMLBody = $htmlMail.Replace($followuppattern, $contactFirst)
+        $mailMessage.HTMLBody = $htmlMail.Replace($followuppattern, $contactFirst[0])
         if ($pinassign -eq "Y") {
             $mailMessage.Body = $mailMessage.Body.Replace($giftcardpattern, $invitee.contactGiftCard)
             write-host $giftcardpattern ":" $invitee.contactGiftCard
